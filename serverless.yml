@@ -42,6 +42,14 @@ functions:
           path: /{id}
           cors: true
           method: get
+  
+  delete:
+    handler: delete.main
+    events:
+      - http:
+          path: /{id}
+          cors: true
+          method: delete
 
 resources:
   Resources:

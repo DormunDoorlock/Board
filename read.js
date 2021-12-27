@@ -9,7 +9,7 @@ exports.main =async(event, context)=> {
         // Difference" this is not item but key!
         Key: {
             BoardId: String(event.pathParameters.id),
-            name: "helloworld"
+            name: "hellworld"
         }
     };
 
