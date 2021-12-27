@@ -6,6 +6,7 @@ exports.main =async(event, context)=> {
 
     const params ={
         TableName: "Board",
+        // Difference" this is not item but key!
         Key: {
             BoardId: String(event.pathParameters.id),
             name: "helloworld"
