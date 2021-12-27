@@ -1,0 +1,67 @@
+
+service: board
+
+package:
+  individually: true
+
+frameworkVersion: '2'
+
+
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${opt:region, 'ap-northeast-2'}
+  environment:
+    DYNAMODB_TABLE: Board
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: create.main
+    events:
+      - http:
+          path: /
+          cors: true
+          method: post
+
+  read:
+    handler: read.main
+    events:
+      - http:
+          path: /{id}
+          cors: true
+          method: get
+
+resources:
+  Resources:
+    productDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: BoardId
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+         
+        KeySchema:
+          - AttributeName: BoardId
+            KeyType: HASH
+          - AttributeName: name
+            KeyType: RANGE
+
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
