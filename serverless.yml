@@ -42,7 +42,15 @@ functions:
           path: /{id}
           cors: true
           method: get
-  
+          
+  update:
+    handler: update.main
+    events:
+      - http:
+          path: /{id}
+          cors: true
+          method: put
+
   delete:
     handler: delete.main
     events:
