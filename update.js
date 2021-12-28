@@ -11,16 +11,23 @@ exports.main =async(event, context)=> {
     const params ={
         TableName: "Board",
         
-        Item: {
+        Key: {
             BoardId: String(event.pathParameters.id),
-            name: data.name,
-            content: data.content,
-            createAt: Date.now()
-        }
+            name: data.name
+        },
+
+        UpdateExpression: "SET content = :content, createAt = :createAt",
+
+        ExpressionAttributeValues: {
+        ":createAt": Date.now() || null,
+        ":content": data.content || null,
+        },
+
+        ReturnValues: "ALL_NEW",
     };
 
     try {
-        await dynamoDb.put(params).promise();
+        await dynamoDb.update(params).promise();
         return {
           statusCode: 200,
           body: JSON.stringify({ status: true }),
