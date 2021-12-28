@@ -8,8 +8,8 @@ exports.main =async(event, context)=> {
         TableName: "Board",
         
         Key: {
-            BoardId: String(event.pathParameters.id),
-            name: "hellworld"
+            BoardId: "3",
+            name: event.pathParameters.id
         }
     };
     try {
