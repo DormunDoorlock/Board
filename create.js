@@ -8,13 +8,15 @@ exports.main =async(event, context)=> {
     data=JSON.parse(data.body);
     console.log(data);
 
+    var now = new Date();
+
     const params ={
         TableName: "Board",
         Item: {
             BoardId: "3",
             name: data.name,
             content: data.content,
-            createAt: Date.now()
+            createAt: now.toLocaleString()
         }
     };
 

@@ -8,6 +8,8 @@ exports.main =async(event, context)=> {
     data=JSON.parse(data.body);
     console.log(data);
 
+    var now = new Date();
+
     const params ={
         TableName: "Board",
         
@@ -19,7 +21,7 @@ exports.main =async(event, context)=> {
         UpdateExpression: "SET content = :content, createAt = :createAt",
 
         ExpressionAttributeValues: {
-        ":createAt": Date.now() || null,
+        ":createAt": now.toLocaleString() || null,
         ":content": data.content || null,
         },
 
