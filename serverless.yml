@@ -1,12 +1,9 @@
-
 service: board
 
 package:
   individually: true
 
 frameworkVersion: '2'
-
-
 
 provider:
   name: aws
@@ -24,40 +21,64 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
         - dynamodb:DescribeTable
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      Resource: "arn:aws:dynamodb:ap-northeast-2:*:*"
 
 functions:
   create:
-    handler: create.main
+    handler: main.handle
+    events:
+      - http:
+          path: /{type}
+          cors: true
+          method: post
+
+  read:
+    handler: main.handle
+    events:
+      - http:
+          path: /{type}/{id}
+          cors: true
+          method: get
+          
+  update:
+    handler: main.handle
+    events:
+      - http:
+          path: /{type}/{id}
+          cors: true
+          method: put
+
+  delete:
+    handler: main.handle
+    events:
+      - http:
+          path: /{type}/{id}
+          cors: true
+          method: delete
+
+  getall:
+    handler: main.search
+    events:
+      - http:
+          path: /
+          cors: true
+          method: get
+
+  searchName:
+    handler: main.searchoption
     events:
       - http:
           path: /
           cors: true
           method: post
 
-  read:
-    handler: read.main
+  searchContent:
+    handler: main.searchoption
     events:
       - http:
-          path: /{id}
+          path: /
           cors: true
-          method: get
-          
-  update:
-    handler: update.main
-    events:
-      - http:
-          path: /{id}
-          cors: true
-          method: put
-
-  delete:
-    handler: delete.main
-    events:
-      - http:
-          path: /{id}
-          cors: true
-          method: delete
+          method: post
 
 resources:
   Resources:
@@ -66,16 +87,55 @@ resources:
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
+          - AttributeName: BoardType
+            AttributeType: S
           - AttributeName: BoardId
             AttributeType: S
-          - AttributeName: name
+          - AttributeName: CreateAt
+            AttributeType: S
+          - AttributeName: Sort
+            AttributeType: N
+          - AttributeName: BoardName
             AttributeType: S
          
         KeySchema:
-          - AttributeName: BoardId
+          - AttributeName: BoardType
             KeyType: HASH
-          - AttributeName: name
+          - AttributeName: BoardId
             KeyType: RANGE
+        
+        GlobalSecondaryIndexes:
+          - IndexName: BoardIdIndex
+            KeySchema:
+              - AttributeName: Sort
+                KeyType: HASH
+              - AttributeName: CreateAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+
+          - IndexName: NameSearchIndex
+            KeySchema:
+              - AttributeName: BoardName
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        
+          - IndexName: ContentSearchIndex
+            KeySchema:
+              - AttributeName: Sort
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
 
         ProvisionedThroughput:
           ReadCapacityUnits: 1
